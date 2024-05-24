@@ -1,3 +1,10 @@
+"""
+original author: Dominik Cedro
+created: 2024-05-17
+license: #TODO create license
+description: This module contains main fastAPI app that runs backend for CognitiveTests mobile app.
+"""
+
 from fastapi import FastAPI, HTTPException, Depends, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
@@ -18,13 +25,22 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 class Token(BaseModel):
+    """
+    token class represents the attributes of token
+    """
     access_token: str
     token_type: str
 
 class TokenData(BaseModel):
+    """
+    tokenData class
+    """
     username: Union[str, None] = None
 
 class User(BaseModel):
+    """
+    user represents data stored in users collection for each registered user
+    """
     username: str
     email: Union[str, None] = None
     full_name: Union[str, None] = None
@@ -42,14 +58,23 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 app = FastAPI()
 
 def get_password_hash(password):
+    """
+    this function utilizes CryptContext bcrypt to hash parameter "password"
+    """
     return pwd_context.hash(password)
 
 def get_user(username: str):
+    """
+    utilizes pymongo library to get user from users collection
+    """
     user_dict = db.users.find_one({"username": username})
     if user_dict:
         return UserInDB(**user_dict)
 
 def authenticate_user(username: str, password: str):
+    """
+    this function is used to verify user with username and password
+    """
     user = get_user(username)
     if not user:
         return False
@@ -58,9 +83,15 @@ def authenticate_user(username: str, password: str):
     return user
 
 def verify_password(plain_password, hashed_password):
+    """
+    compares hashes of input password and OG password
+    """
     return pwd_context.verify(plain_password, hashed_password)
 
 def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None):
+    """
+    when user verified, creates encoded JWT token
+    """
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
@@ -71,6 +102,9 @@ def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None
     return encoded_jwt
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+    """
+    will return credentials of current enabled user
+    """
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -92,6 +126,9 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
 async def get_current_active_user(
     current_user: Annotated[User, Depends(get_current_user)],
 ):
+    """
+    will return user if is enabled
+    """
     if current_user.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
@@ -100,6 +137,9 @@ async def get_current_active_user(
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ) -> Token:
+    """
+    login endpoint
+    """
     user = authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(
@@ -127,7 +167,9 @@ async def read_own_items(
 
 @app.post("/register/")
 async def register_new_user(user: UserCreate):
-    # Check if the user already exists
+    """
+    register new user, put his data into db
+    """
     if get_user(user.username):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
