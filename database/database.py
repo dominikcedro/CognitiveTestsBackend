@@ -25,3 +25,11 @@ db = client.CognitiveTests
 collection_evaluations = db["evaluations"]
 # collection for storing users and their respective tests
 collection_users = db["users"]
+# collection for counters regarding IDs for users and evaluations
+collection_counters = db["counters"]
+# After initializing the collection_counters
+if collection_counters.count_documents({}) == 0:  # Check if the collection is empty
+    collection_counters.insert_many([
+        {"_id": "user_id", "seq": 0},
+        {"_id": "test_id", "seq": 0}
+    ])

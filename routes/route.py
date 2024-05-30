@@ -1,13 +1,20 @@
 from fastapi import APIRouter
 from models.evaluations import Evaluation
 from models.users import User
-from database.database import collection_evaluations, collection_users
+from database.database import collection_evaluations, collection_users, collection_counters
 from schema.schemas import evaluation_serial_list, user_serial_list
 from bson import ObjectId
 from fastapi import APIRouter, HTTPException
 
 router = APIRouter()
-
+### counter collection
+def get_next_sequence_value(sequence_name):
+    result = collection_counters.find_one_and_update(
+        {"_id": sequence_name},
+        {"$inc": {"seq": 1}},
+        return_document=True
+    )
+    return result["seq"]
 ### Evaluations collection
 
 # GET
@@ -19,10 +26,10 @@ async def get_evaluations():
 # POST
 @router.post("/evaluations")
 async def post_evaluation(evaluation: Evaluation):
-    collection_evaluations.insert_one(dict(evaluation))
-    user_id = evaluation.user_id
-    if isinstance(user_id, str):
-        user_id = ObjectId(user_id)
+    evaluation_dict = dict(evaluation)
+    evaluation_dict["test_id"] = get_next_sequence_value("test_id")
+    collection_evaluations.insert_one(evaluation_dict)
+    user_id = evaluation_dict["user_id"]
 
     result = collection_users.update_one(
         {"user_id": user_id},
@@ -44,10 +51,18 @@ async def get_users():
 @router.post("/users")
 async def post_user(user: User):
     user_dict = dict(user)
+    user_dict["user_id"] = get_next_sequence_value("user_id")
+    existing_user = collection_users.find_one({"user_id": user_dict["user_id"]})
+    if existing_user is not None:
+        raise HTTPException(status_code=409, detail=f"User with ID {user_dict['user_id']}already exists")
+    existing_user_email = collection_users.find_one({"email": user_dict["email"]})
+    if existing_user_email is not None:
+        raise HTTPException(status_code=409, detail=f"User with email {user_dict['email']} already exists")
+
     collection_users.insert_one(user_dict)
     return user
 
-# DELTE
+# DELETE
 @router.delete("/users/{user_id}")
 async def delete_user(user_id: int):
     result = collection_users.delete_one({"user_id": user_id})
