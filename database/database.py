@@ -1,6 +1,6 @@
 import os
 import json
-
+from pymongo import MongoClient
 
 def setup_connection_db():
     """
@@ -18,3 +18,7 @@ def setup_connection_db():
     uri = f"mongodb+srv://{username}:{password}@cognitivetests.fsbiorm.mongodb.net/?retryWrites=true&w=majority&appName=CognitiveTests"
     return uri
 
+client = MongoClient(setup_connection_db())
+
+db = client.CognitiveTests
+collection_name = db["evaluations"]
