@@ -1,3 +1,9 @@
+"""
+original author: Dominik Cedro
+created: 2024-05-17
+license: BSD 3.0
+description: This module contains security setup for my app, not yet implemented
+"""
 from fastapi import HTTPException, Depends, status
 from fastapi.security import OAuth2PasswordBearer
 from datetime import datetime, timedelta, timezone

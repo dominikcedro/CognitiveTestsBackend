@@ -1,3 +1,9 @@
+"""
+original author: Dominik Cedro
+created: 2024-05-17
+license: BSD 3.0
+description: fastAPI routing for users, evaluations and counter collections
+"""
 from fastapi import APIRouter
 from models.evaluations import Evaluation
 from models.users import User

@@ -1,7 +1,7 @@
 """
 original author: Dominik Cedro
 created: 2024-05-17
-license: #TODO create license
+license: BSD 3.0
 description: This module contains main fastAPI app that runs backend for CognitiveTests mobile app.
 """
 

@@ -1,8 +1,8 @@
 """
 original author: Dominik Cedro
 created: 2024-05-28
-license: #TODO create license
-description: This module contains tests for app/config/database.py file
+license: BSD 3.0
+description: Testing database connectivity
 """
 
 import unittest

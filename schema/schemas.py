@@ -1,3 +1,9 @@
+"""
+original author: Dominik Cedro
+created: 2024-05-29
+license: BSD 3.0
+description: Deserialization for data stored in mongo collections to easy handle it in app
+"""
 from typing import List, Optional
 ### evaluations
 # to deserialize singular evaluation

@@ -1,3 +1,9 @@
+"""
+original author: Dominik Cedro
+created: 2024-05-22
+license: BSD 3.0
+description: This module contains database setup for MongoDB cluster
+"""
 import os
 import json
 from pymongo import MongoClient

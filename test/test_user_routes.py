@@ -1,3 +1,10 @@
+"""
+original author: Dominik Cedro
+created: 2024-05-17
+license: BSD 3.0
+description: Testing routes module and CRUD operations
+"""
+
 from fastapi.testclient import TestClient
 from main import app  # import your FastAPI application
 import unittest
