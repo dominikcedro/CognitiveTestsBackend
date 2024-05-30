@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel
 
 
@@ -8,5 +10,7 @@ class Evaluation(BaseModel):
     version: int
     score: int
     date_taken: str
+    custom_field_1: Optional[str]
+    custom_field_2: Optional[str]
 
 

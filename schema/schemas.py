@@ -15,7 +15,9 @@ def evaluation_serial_single(evaluation) -> dict:
         "type": str(evaluation["type"]),
         "version": int(evaluation["version"]),
         "score": int(evaluation["score"]),
-        "date_taken": str(evaluation["date_taken"])
+        "date_taken": str(evaluation["date_taken"]),
+        "custom_field_1": evaluation.get("custom_field_1"),
+        "custom_field_2": evaluation.get("custom_field_2")
     }
 
 # deserialaize multiple

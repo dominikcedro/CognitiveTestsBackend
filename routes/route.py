@@ -33,18 +33,25 @@ async def get_evaluations():
 @router.post("/evaluations")
 async def post_evaluation(evaluation: Evaluation):
     evaluation_dict = dict(evaluation)
+    user_id = evaluation_dict["user_id"]
+    existing_user = collection_users.find_one({"user_id": user_id})
+    if existing_user is None:
+        raise HTTPException(status_code=404, detail=f"User with ID {user_id} doesn't exist")
     evaluation_dict["test_id"] = get_next_sequence_value("test_id")
     collection_evaluations.insert_one(evaluation_dict)
-    user_id = evaluation_dict["user_id"]
-
     result = collection_users.update_one(
         {"user_id": user_id},
-        {"$push": {"test_ids": evaluation.test_id}}
+        {"$push": {"test_ids": evaluation_dict["test_id"]}}
     )
-    if result.matched_count == 0:
-        raise HTTPException(status_code=404, detail="User not found")
-
     return evaluation
+
+# DELETE
+@router.delete("/evaluations/{test_id}")
+async def delete_evaluation(test_id: int):
+    result = collection_evaluations.delete_one({"test_id": test_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Evaluation not found")
+    return {"message": "Evaluation deleted successfully"}
 
 ### users collection
 # GET
