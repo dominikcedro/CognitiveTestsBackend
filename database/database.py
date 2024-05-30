@@ -21,4 +21,7 @@ def setup_connection_db():
 client = MongoClient(setup_connection_db())
 
 db = client.CognitiveTests
-collection_name = db["evaluations"]
+# collection for storing details about evaluations
+collection_evaluations = db["evaluations"]
+# collection for storing users and their respective tests
+collection_users = db["users"]
