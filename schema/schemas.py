@@ -5,6 +5,7 @@ license: BSD 3.0
 description: Deserialization for data stored in mongo collections to easy handle it in app
 """
 from typing import List, Optional
+
 ### evaluations
 # to deserialize singular evaluation
 def evaluation_serial_single(evaluation) -> dict:
@@ -29,11 +30,13 @@ def evaluation_serial_list(evaluations)->list:
 def user_serial_single(user) -> dict:
     return{
         "user_id": int(user["user_id"]),
-    "first_name": str(user["first_name"]),
-    "last_name": str(user["last_name"]),
-    "version": int(user["version"]),
-    "email": str(user["email"]),
-    "test_ids": [int(test_id) for test_id in user.get("test_ids", [])]
+        "first_name": str(user["first_name"]),
+        "last_name": str(user["last_name"]),
+        "version": int(user["version"]),
+        "email": str(user["email"]),
+        "stroop": user.get("stroop", []),
+        "digit_substitution": user.get("digit_substitution", []),
+        "trail_making": user.get("trail_making", [])
     }
 
 def user_serial_list(users)->list:
