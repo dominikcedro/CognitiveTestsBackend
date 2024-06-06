@@ -1,1 +1,6 @@
 #TODO fill requirements with versions before dokker
+
+
+# pytest
+# 
+#

@@ -6,8 +6,11 @@ description: Testing routes module and CRUD operations
 """
 
 from fastapi.testclient import TestClient
+from pymongo import MongoClient
+
 from main import app  # import your FastAPI application
 import unittest
+from database.database import setup_connection_db
 
 client = TestClient(app)
 
@@ -16,6 +19,17 @@ USER_ID_ALREADY_EXISTING = 2
 USER_ID_TO_CREATE = 1
 
 class TestRoutes(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        # Set up test database
+        setup_connection_db('test_database_config.json')
+
+    @classmethod
+    def tearDownClass(cls):
+        # Tear down test database
+        client = MongoClient(setup_connection_db('test_database_config.json'))
+        client.drop_database('TestDatabase')
     def test_get_users(self):
         response = client.get("/users")
         self.assertEqual(response.status_code, 200)
@@ -27,7 +41,9 @@ class TestRoutes(unittest.TestCase):
             "last_name": "string",
             "version": 0,
             "email": "string",
-            "test_ids": []
+            "stroop": [],
+            "digit_substitution": [],
+            "trail_making": []
         }
         response = client.post("/users", json=test_user)
         self.assertEqual(response.status_code, 200)
@@ -48,7 +64,9 @@ class TestRoutes(unittest.TestCase):
             "last_name": "string",
             "version": 0,
             "email": "string",
-            "test_ids": []
+            "stroop": [],
+            "digit_substitution": [],
+            "trail_making": []
         }
         response = client.post("/users", json=test_user)
         self.assertEqual(response.status_code, 409)
@@ -59,8 +77,10 @@ class TestRoutes(unittest.TestCase):
             "first_name": "string",
             "last_name": "string",
             "version": 0,
-            "email": "repeated_email",
-            "test_ids": []
+            "email": "repeated_email", # TODO fix magic number repeated email
+            "stroop": [],
+            "digit_substitution": [],
+            "trail_making": []
         }
         response = client.post("/users", json=test_user)
         self.assertEqual(response.status_code, 409)
