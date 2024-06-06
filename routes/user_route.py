@@ -4,7 +4,10 @@ created: 2024-06-05
 license: BSD 3.0
 description: fastAPI routing for users
 """
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
+from pydantic import ValidationError
+from starlette.responses import JSONResponse
+
 from models.users import User, Stroop, DigitSubstitution, TrailMaking
 from database.database import collection_users, collection_counters
 from schema.schemas import user_serial_list
@@ -40,6 +43,19 @@ async def post_user(user: User):
 
     collection_users.insert_one(user_dict)
     return user
+
+
+async def validation_exception_handler(request: Request, exc: ValidationError):
+    errors = exc.errors()
+    formatted_errors = []
+    for error in errors:
+        loc = error['loc']
+        msg = error['msg']
+        formatted_errors.append(f"Field {loc[-1]} is incorrect: {msg}")
+    return JSONResponse(
+        status_code=422,
+        content={"detail": formatted_errors}
+    )
 
 # DELETE
 @user_router.delete("/users/{user_id}")
