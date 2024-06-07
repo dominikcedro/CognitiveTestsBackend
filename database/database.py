@@ -40,6 +40,7 @@ db = client.CognitiveTests
 collection_evaluations = db["evaluations"]
 collection_users = db["users"]
 collection_counters = db["counters"]
+collection_auth = db["auth"]
 check_for_collection_counters_null()
 
 
