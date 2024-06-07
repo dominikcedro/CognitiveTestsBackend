@@ -10,7 +10,7 @@ from starlette.responses import JSONResponse
 
 from models.users import User, Stroop, DigitSubstitution, TrailMaking
 from database.database import collection_users, collection_counters
-from schema.schemas import user_serial_list
+from schema.schemas import user_serial_list, user_serial_single
 
 user_router = APIRouter()
 
@@ -29,6 +29,15 @@ async def get_users():
     users = user_serial_list(collection_users.find())
     return users
 
+@user_router.get("/users/{user_id}")
+async def get_users(user_id:int):
+    result = collection_users.find_one({"user_id": user_id})
+    if result is None:
+        raise HTTPException(status_code=404, detail=f"user not found")
+    else:
+        result = user_serial_single(result)
+    return result
+
 # POST
 @user_router.post("/users")
 async def post_user(user: User):
@@ -42,7 +51,7 @@ async def post_user(user: User):
         raise HTTPException(status_code=409, detail=f"User with email {user_dict['email']} already exists")
 
     collection_users.insert_one(user_dict)
-    return user
+    return {"detail": "user created"}
 
 
 async def validation_exception_handler(request: Request, exc: ValidationError):
@@ -63,5 +72,5 @@ async def validation_exception_handler(request: Request, exc: ValidationError):
 async def delete_user(user_id: int):
     result = collection_users.delete_one({"user_id": user_id})
     if result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="user not found (delete)")
     return {"message": "User deleted successfully"}
