@@ -33,7 +33,7 @@ class DigitSubstitution(BaseModel):
 
 
 class TrailMaking(BaseModel):
-    stroop_id: int
+    trail_making_id: int
     version: int
     datetime: datetime
     time: int
