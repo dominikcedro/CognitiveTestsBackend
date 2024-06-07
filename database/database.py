@@ -31,7 +31,7 @@ def setup_connection_db():
     username = config['username']
     password = config['password']
 
-    uri = f"mongodb+srv://{username}:{password}@cognitivetests.fsbiorm.mongodb.net/?retryWrites=true&w=majority&appName=CognitiveTests"
+    uri = f"mongodb+srv://{username}:{password}@cognitivetests.fsbiorm.mongodb.net/?retryWrites=true&w=majority&appName=CognitiveTests&ssl=true"
     return uri
 
 
