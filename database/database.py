@@ -7,11 +7,15 @@ description: This module contains database setup for MongoDB cluster
 import os
 import json
 from pymongo import MongoClient
+
+
 def check_for_collection_counters_null():
     if collection_counters.count_documents({}) == 0:
         collection_counters.insert_many([
             {"_id": "user_id", "seq": 0},
-            {"_id": "test_id", "seq": 0}
+            {"_id": "stroop_id", "seq": 0},
+            {"_id": "trailmaking_id", "seq": 0},
+            {"_id": "digitsubstitution_id", "seq": 0}
         ])
 
 def setup_connection_db():

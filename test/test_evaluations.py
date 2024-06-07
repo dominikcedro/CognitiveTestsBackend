@@ -43,6 +43,7 @@ def test_post_stroop():
         collection_counters.drop()
         collection_users.drop()
 
+
 def test_post_trail_making():
     check_for_collection_counters_null()
 
@@ -74,6 +75,7 @@ def test_post_trail_making():
     finally:
         collection_counters.drop()
         collection_users.drop()
+
 
 def test_post_digit_substituton():
     check_for_collection_counters_null()
@@ -170,3 +172,47 @@ def test_post_and_get_all_evaluations():
     finally:
         collection_counters.drop()
         collection_users.drop()
+
+
+def test_sequence_generator_for_test_ids():
+    check_for_collection_counters_null()
+    try:
+        test_user = {
+            "user_id": 1,
+            "first_name": "string",
+            "last_name": "string",
+            "version": 0,
+            "email": "correct_email@mail.com",
+            "stroop": [],
+            "digit_substitution": [],
+            "trail_making": []
+        }
+        client.post("/users", json=test_user)
+
+        trail_making_test = {
+            "trail_making_id": 1,
+            "version": 1,
+            "datetime": "2024-06-07T12:34:56",
+            "time": 60,
+            "mistake_count": 0,
+            "total_score": 100
+        }
+
+        client.post("/trailmaking/1", json=trail_making_test)
+        client.post("/trailmaking/1", json=trail_making_test)
+        client.post("/trailmaking/1", json=trail_making_test)
+
+        response = client.get("/evaluations/1")
+        assert response.status_code == 200
+
+        # Check if the evaluations are returned correctly
+        evaluations = response.json()
+        assert len(evaluations) == 3
+        assert evaluations[0]['trail_making_id'] == 1
+        assert evaluations[1]['trail_making_id'] == 2
+        assert evaluations[2]['trail_making_id'] == 3
+
+        assert response.status_code == 200
+    finally:
+       collection_counters.drop()
+       collection_users.drop()
