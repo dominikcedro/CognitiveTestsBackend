@@ -8,12 +8,13 @@ description: testing routing for evaluations
 import pytest
 from fastapi.testclient import TestClient
 from main import app
-from database.database import setup_connection_db, collection_evaluations, collection_users, collection_counters
+from database.database import setup_connection_db, collection_evaluations, collection_users, collection_counters, check_for_collection_counters_null
 
 client = TestClient(app)
 
 
 def test_post_stroop():
+    check_for_collection_counters_null()
     try:
         test_user = {
             "user_id": 1,
@@ -43,6 +44,8 @@ def test_post_stroop():
         collection_users.drop()
 
 def test_post_trail_making():
+    check_for_collection_counters_null()
+
     try:
         test_user = {
             "user_id": 1,
@@ -73,6 +76,8 @@ def test_post_trail_making():
         collection_users.drop()
 
 def test_post_digit_substituton():
+    check_for_collection_counters_null()
+
     try:
         test_user = {
             "user_id": 1,
@@ -104,6 +109,8 @@ def test_post_digit_substituton():
 
 
 def test_post_and_get_all_evaluations():
+    check_for_collection_counters_null()
+
     try:
         # Create test evaluations
         stroop_test = {

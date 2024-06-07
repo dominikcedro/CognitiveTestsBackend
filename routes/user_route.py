@@ -14,14 +14,6 @@ from schema.schemas import user_serial_list, user_serial_single
 
 user_router = APIRouter()
 
-def get_next_sequence_value(sequence_name):
-    result = collection_counters.find_one_and_update(
-        {"_id": sequence_name},
-        {"$inc": {"seq": 1}},
-        return_document=True
-    )
-    return result["seq"]
-
 ### users collection
 # GET
 @user_router.get("/users")
@@ -51,7 +43,7 @@ async def post_user(user: User):
         raise HTTPException(status_code=409, detail=f"User with email {user_dict['email']} already exists")
 
     collection_users.insert_one(user_dict)
-    return {"detail": "user created"}
+    return {"message": "user created"}
 
 
 async def validation_exception_handler(request: Request, exc: ValidationError):
@@ -63,7 +55,7 @@ async def validation_exception_handler(request: Request, exc: ValidationError):
         formatted_errors.append(f"Field {loc[-1]} is incorrect: {msg}")
     return JSONResponse(
         status_code=422,
-        content={"detail": formatted_errors}
+        content={"message": formatted_errors}
     )
 
 
@@ -74,3 +66,17 @@ async def delete_user(user_id: int):
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="user not found (delete)")
     return {"message": "User deleted successfully"}
+
+
+
+def get_next_sequence_value(sequence_name):
+    """
+   util function to provide auto incremented IDs for users and evaluations
+    """
+
+    result = collection_counters.find_one_and_update(
+        {"_id": sequence_name},
+        {"$inc": {"seq": 1}},
+        return_document=True
+    )
+    return result["seq"]

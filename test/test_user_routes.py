@@ -7,7 +7,7 @@ description: Testing routes module and CRUD operations
 import pytest
 from fastapi.testclient import TestClient
 from main import app
-from database.database import setup_connection_db, collection_users
+from database.database import setup_connection_db, collection_users, check_for_collection_counters_null,collection_counters
 
 client = TestClient(app)
 USER_ID_NOT_EXISTING = 9999
@@ -32,6 +32,8 @@ def test_get_users_empty():
 
 
 def test_post_user():
+    check_for_collection_counters_null()
+
     try:
         test_user = {
             "user_id": USER_ID_TO_CREATE,
@@ -45,12 +47,13 @@ def test_post_user():
         }
         response = client.post("/users", json=test_user)
         assert response.status_code == 200
-        assert response.json() == {"detail": "user created"}
+        assert response.json() == {"message": "user created"}
     finally:
         collection_users.drop()
 
 
 def test_get_user_not_found():
+
     collection_users.drop()
     response = client.get(f"/users/{USER_ID_NOT_EXISTING}")
     assert response.status_code == 404
@@ -65,23 +68,30 @@ def test_delete_user_not_found():
 
 
 def test_post_user_conflict_id():
-    test_user = {
-        "user_id": f"{CONFLICT_ID}",
-        "first_name": "string",
-        "last_name": "string",
-        "version": 0,
-        "email": "string",
-        "stroop": [],
-        "digit_substitution": [],
-        "trail_making": []
-    }
-    client.post("/users", json=test_user)
-    response = client.post("/users", json=test_user)
-    assert response.status_code == 409
-    assert response.json() == {"msg": "user with same email already exists"}
+    check_for_collection_counters_null()
+    try:
+        test_user = {
+            "user_id": f"{CONFLICT_ID}",
+            "first_name": "string",
+            "last_name": "string",
+            "version": 0,
+            "email": "string@email.com",
+            "stroop": [],
+            "digit_substitution": [],
+            "trail_making": []
+        }
+        client.post("/users", json=test_user)
+        response = client.post("/users", json=test_user)
+        assert response.status_code == 409
+        assert response.json() == {'detail': 'User with email string@email.com already exists'}
+        # TODO magic number to delete later
+    finally:
+        collection_counters.drop()
+        collection_users.drop()
 
 
 def test_post_user_conflict_email():
+    check_for_collection_counters_null()
     try:
         test_user = {
             "user_id": 0,
@@ -99,6 +109,7 @@ def test_post_user_conflict_email():
         assert response.json() == {"detail": f"User with email {REPEATED_EMAIL} already exists"}
     finally:
         collection_users.drop()
+        collection_counters.drop()
 
 
 

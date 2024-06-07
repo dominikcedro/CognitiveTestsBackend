@@ -13,16 +13,7 @@ import timeout_decorator
 TIMEOUT_FOR_CONNECTION_TEST = 15
 class TestDatabase(unittest.TestCase):
     # @timeout_decorator.timeout(TIMEOUT_FOR_CONNECTION_TEST)
-    @classmethod
-    def setUpClass(cls):
-        # Set up test database
-        setup_connection_db('test_database_config.json')
 
-    @classmethod
-    def tearDownClass(cls):
-        # Tear down test database
-        client = MongoClient(setup_connection_db('test_database_config.json'))
-        client.drop_database('TestDatabase')
     def test_connection(self):
         uri = setup_connection_db()
         client = MongoClient(uri)
