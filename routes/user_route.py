@@ -57,6 +57,7 @@ async def validation_exception_handler(request: Request, exc: ValidationError):
         content={"detail": formatted_errors}
     )
 
+
 # DELETE
 @user_router.delete("/users/{user_id}")
 async def delete_user(user_id: int):
