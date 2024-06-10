@@ -73,6 +73,11 @@ def get_next_sequence_value(sequence_name):
     """
    util function to provide auto incremented IDs for users and evaluations
     """
+    result = collection_counters.find_one({"_id": sequence_name})
+
+    if result is None:
+        collection_counters.insert_one({"_id": sequence_name, "seq": 0})
+        result = collection_counters.find_one({"_id": sequence_name})
 
     result = collection_counters.find_one_and_update(
         {"_id": sequence_name},
