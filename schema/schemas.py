@@ -26,18 +26,23 @@ def evaluation_serial_list(evaluations)->list:
     return[evaluation_serial_single(evaluation) for evaluation in evaluations]
 
 ### users
-
 def user_serial_single(user) -> dict:
-    return{
+    user_dict = {
         "user_id": int(user["user_id"]),
         "first_name": str(user["first_name"]),
         "last_name": str(user["last_name"]),
         "version": int(user["version"]),
         "email": str(user["email"]),
-        "stroop": user.get("stroop", []),
-        "digit_substitution": user.get("digit_substitution", []),
-        "trail_making": user.get("trail_making", [])
     }
+
+    if "stroop" in user and user["stroop"]:
+        user_dict["stroop"] = user["stroop"]
+    if "digit_substitution" in user and user["digit_substitution"]:
+        user_dict["digit_substitution"] = user["digit_substitution"]
+    if "trail_making" in user and user["trail_making"]:
+        user_dict["trail_making"] = user["trail_making"]
+
+    return user_dict
 
 def user_serial_list(users)->list:
     return[user_serial_single(user) for user in users]
