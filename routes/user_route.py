@@ -85,3 +85,4 @@ def get_next_sequence_value(sequence_name):
         return_document=True
     )
     return result["seq"]
+
