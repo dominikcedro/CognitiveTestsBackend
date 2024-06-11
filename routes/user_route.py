@@ -30,21 +30,6 @@ async def get_users(user_id:int):
         result = user_serial_single(result)
     return result
 
-# POST
-@user_router.post("/users")
-async def post_user(user: User):
-    user_dict = dict(user)
-    user_dict["user_id"] = get_next_sequence_value("user_id")
-    existing_user = collection_users.find_one({"user_id": user_dict["user_id"]})
-    if existing_user is not None:
-        raise HTTPException(status_code=409, detail=f"User with ID {user_dict['user_id']}already exists")
-    existing_user_email = collection_users.find_one({"email": user_dict["email"]})
-    if existing_user_email is not None:
-        raise HTTPException(status_code=409, detail=f"User with email {user_dict['email']} already exists")
-
-    collection_users.insert_one(user_dict)
-    return {"message": "user created"}
-
 
 async def validation_exception_handler(request: Request, exc: ValidationError):
     errors = exc.errors()
@@ -60,12 +45,12 @@ async def validation_exception_handler(request: Request, exc: ValidationError):
 
 
 # DELETE
-@user_router.delete("/users/{user_id}")
-async def delete_user(user_id: int):
-    result = collection_users.delete_one({"user_id": user_id})
-    if result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail="user not found (delete)")
-    return {"message": "User deleted successfully"}
+# @user_router.delete("/users/{user_id}") ## TODO must be synched with delete of auth document also!
+# async def delete_user(user_id: int):
+#     result = collection_users.delete_one({"user_id": user_id})
+#     if result.deleted_count == 0:
+#         raise HTTPException(status_code=404, detail="user not found (delete)")
+#     return {"message": "User deleted successfully"}
 
 
 
