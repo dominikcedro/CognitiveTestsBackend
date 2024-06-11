@@ -2,9 +2,12 @@ from datetime import timedelta, datetime, timezone
 from typing import Union
 
 import jwt
+from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 from pydantic import BaseModel
+
+from security.security import oauth2_scheme, TokenData
 
 ### PASSWORDS MANAGEMENT - hashing
 
@@ -47,3 +50,25 @@ def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
+
+def get_current_user(token: str = Depends(oauth2_scheme)):
+    credentials_exception = HTTPException(
+        status_code=401,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("email")
+        user_id: str = payload.get("user_id")
+        if email is None or user_id is None:
+            raise credentials_exception
+        token_data = TokenData(email=email, user_id=user_id)
+    except jwt.InvalidTokenError:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return token_data
