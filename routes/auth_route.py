@@ -12,12 +12,10 @@ from security.security_config import get_password_hash, verify_password, ACCESS_
 # logging
 from icecream import ic
 ####
-auth_route = APIRouter(
-    prefix="/auth"
-)
+auth_route = APIRouter()
 
 # POST
-@auth_route.post("/register")
+@auth_route.post("/auth/register")
 async def register_user(user_register_request: UserRegisterRequest):
     register_request = dict(user_register_request)
     register_request["password"] = get_password_hash(register_request["password"])
@@ -49,7 +47,7 @@ async def register_user(user_register_request: UserRegisterRequest):
     ic("auth collection posted")  #### log
     return {"message": "user registered"}
 
-@auth_route.post("/login")
+@auth_route.post("/auth/login")
 async def login_user(login_request: UserLoginRequest):
     ic("login user function operating")
     user_dict = dict(login_request)
