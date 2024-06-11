@@ -12,7 +12,9 @@ from security.security_config import get_password_hash, verify_password, ACCESS_
 # logging
 from icecream import ic
 ####
-auth_route = APIRouter()
+auth_route = APIRouter(
+    prefix="/auth"
+)
 
 # POST
 @auth_route.post("/register")
