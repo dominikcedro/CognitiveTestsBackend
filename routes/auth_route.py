@@ -66,7 +66,7 @@ async def login_user(login_request: UserLoginRequest):
         access_token = create_access_token(
             data={"email": login_email, "user_id": user_in_db["user_id"]}, expires_delta=access_token_expires
         )
-        return {"access_token": access_token, "token_type": "bearer"}
+        return {"access_token": access_token, "refresh_token": "skamieliny"}
     else:
         raise HTTPException(status_code=401, detail="Incorrect email or password")
 
