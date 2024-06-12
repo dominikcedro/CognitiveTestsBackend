@@ -1,6 +1,8 @@
 """
 original author: Dominik Cedro
-created:
+created: 2024-06-10
+license: BSD 3.0
+description: This module contains auth models
 """
 from typing import List, Optional
 from pydantic import BaseModel, EmailStr, ValidationError, field_validator

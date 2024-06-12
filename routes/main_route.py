@@ -13,5 +13,5 @@ main_router = APIRouter()
 
 @main_router.get("/")
 async def get_healthcheck():
-    return {"healthcheck": "test-if-it-works"}
+    return {"healthcheck": "positive"}
 

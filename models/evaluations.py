@@ -1,3 +1,9 @@
+"""
+original author: Dominik Cedro
+created: 2024-05-17
+license: BSD 3.0
+description: This module contains main fastAPI app that runs backend for CognitiveTests mobile app.
+"""
 from typing import Optional
 
 from pydantic import BaseModel
@@ -10,7 +16,7 @@ class Evaluation(BaseModel):
     type: str
     version: int
     score: int
-    date_taken: str # TODO zmienic na datetime
+    date_taken: str
     custom_field_1: Optional[str]
     custom_field_2: Optional[str]
 
