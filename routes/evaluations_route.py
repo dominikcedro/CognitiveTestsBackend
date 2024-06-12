@@ -5,7 +5,7 @@ license: BSD 3.0
 description: fastAPI routing for evaluations
 """
 from fastapi import APIRouter, Depends
-from models.evaluations import PostStroopRequest, PostTrailMakingRequest
+from models.evaluations import PostStroopRequest, PostTrailMakingRequest, PostDigitSubstitutionRequest
 from models.users import User
 from database.database import collection_evaluations, collection_users, collection_counters, check_for_collection_counters_null
 from schema.schemas import evaluation_serial_list, user_serial_list
@@ -51,7 +51,7 @@ async def post_trailmaking(trail_making_request: PostTrailMakingRequest, current
     user = collection_users.find_one({"user_id": user_id})
     if user is None:
         raise HTTPException(status_code=404, detail=f"User with ID {user_id} doesn't exist")
-    trail_making_id = get_next_sequence_value("trailmaking_id")
+    trail_making_id = get_next_sequence_value("trail_making_id")
     trail_making_in_db = { # TODO change to model using model from evaluations file
         "stroop_id": trail_making_id,
         "version": 1,  # TODO what do i need it for?
@@ -65,61 +65,35 @@ async def post_trailmaking(trail_making_request: PostTrailMakingRequest, current
     )
     return {"message": f"Trail Making test posted successfully with id: {trail_making_in_db}"}
 
-@evaluations_router.post("/digitsubstitution/{user_id}")
-async def post_digitsubstitution(user_id: int, digitsubstitution: DigitSubstitution):
+@evaluations_router.post("/digitsubstitution")
+async def post_digitsubstitution(digit_substitution_request: PostDigitSubstitutionRequest, current_user: TokenData = Depends(get_current_user)):
     """
     POST operation on DIGIT SUBSTITUTION evaluation for selected user
     """
-
+    user_id = current_user.user_id
     user = collection_users.find_one({"user_id": user_id})
     if user is None:
         raise HTTPException(status_code=404, detail=f"User with ID {user_id} doesn't exist")
-    digit_substitution = dict(digitsubstitution)
-    digit_substitution["digit_sub_id"] = get_next_sequence_value("digit_sub_id")
+    digit_substitution_id = get_next_sequence_value("digit_substitution_id")
+    digit_substitution_in_db = {  # TODO change to model using model from evaluations file
+        "stroop_id": digit_substitution_id,
+        "version": 1,  # TODO what do i need it for?
+        "datetime": digit_substitution_request.datetime,
+        "mistake_count": digit_substitution_request.mistake_count,
+        "total_score": digit_substitution_request.total_score
+    }
     collection_users.update_one(
         {"user_id": user_id},
-        {"$push": {"digit_substitution": digit_substitution}}
+        {"$push": {"trail_making": digit_substitution_in_db}}
     )
-    return {"message": "Digit-Substitution posted successfully"}
+    return {"message": f"Trail Making test posted successfully with id: {digit_substitution_id}"}
 
-# @evaluations_router.get("/digitsubstitution/{user_id}")
-# async def post_digitsubstitution(user_id: int):
-#     """
-#     GET operation on DIGIT SUBSTITUTION evaluation for selected user to get all in list
-#     """
-#     user = collection_users.find_one({"user_id": user_id})
-#     if user is None:
-#         raise HTTPException(status_code=404, detail=f"User with ID {user_id} doesn't exist")
-#     return user.get("digit_substitution", [])
-
-#
-# @evaluations_router.get("/digitsubstitution/{user_id}")
-# async def post_digitsubstitution(user_id: int):
-#     """
-#     GET operation on DIGIT SUBSTITUTION evaluation for selected user to get all in list
-#     """
-#     user = collection_users.find_one({"user_id": user_id})
-#     if user is None:
-#         raise HTTPException(status_code=404, detail=f"User with ID {user_id} doesn't exist")
-#     return user.get("digit_substitution", [])
-#
-#
-# @evaluations_router.get("/digitsubstitution/{user_id}")
-# async def post_digitsubstitution(user_id: int):
-#     """
-#     GET operation on DIGIT SUBSTITUTION evaluation for selected user to get all in list
-#     """
-#     user = collection_users.find_one({"user_id": user_id})
-#     if user is None:
-#         raise HTTPException(status_code=404, detail=f"User with ID {user_id} doesn't exist")
-#     return user.get("digit_substitution", [])
-
-
-@evaluations_router.get("/evaluations/{user_id}")
-async def get_all_evaluations(user_id: int):
+@evaluations_router.get("/evaluations/all")
+async def get_all_evaluations(current_user: TokenData = Depends(get_current_user)):
     """
     GET operation on ALL evaluations for selected user to get all in list
     """
+    user_id = current_user.user_id
     user = collection_users.find_one({"user_id": user_id})
     if user is None:
         raise HTTPException(status_code=404, detail=f"User with ID {user_id} doesn't exist")

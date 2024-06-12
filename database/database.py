@@ -14,8 +14,8 @@ def check_for_collection_counters_null():
         collection_counters.insert_many([
             {"_id": "user_id", "seq": 0},
             {"_id": "stroop_id", "seq": 0},
-            {"_id": "trailmaking_id", "seq": 0},
-            {"_id": "digitsubstitution_id", "seq": 0}
+            {"_id": "trail_making_id", "seq": 0},
+            {"_id": "digit_substitution_id", "seq": 0}
         ])
 
 def setup_connection_db():
