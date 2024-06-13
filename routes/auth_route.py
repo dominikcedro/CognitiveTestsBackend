@@ -48,7 +48,11 @@ async def register_user(user_register_request: UserRegisterRequest):
     }
     collection_auth.insert_one(user_auth)
     ic("auth collection posted")  #### log
-    return {"message": "user registered"}
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"email": user_data["email"], "user_id": user_data["user_id"]}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "refresh_token": "skamieliny"}
 
 @auth_route.post("/login")
 async def login_user(login_request: UserLoginRequest):

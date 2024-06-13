@@ -100,5 +100,10 @@ async def get_all_evaluations(current_user: TokenData = Depends(get_current_user
     stroop = user.get("stroop", [])
     digit_sub = user.get("digit_substitution", [])
     trail_make = user.get("trail_making", [])
-    result = stroop + digit_sub + trail_make
+    result = {
+        "stroop": stroop,
+        "digit_substitution": digit_sub,
+        "trail_making" : trail_make
+    }
     return result
+
