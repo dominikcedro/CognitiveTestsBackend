@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, datetime, timezone
 
 import jwt
 from fastapi import APIRouter, HTTPException, Depends
@@ -57,11 +57,11 @@ async def register_user(user_register_request: UserRegisterRequest):
 
     # Create refresh token
     refresh_token_expires = timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
-    refresh_token = create_refresh_token(
+    refresh_token, refresh_token_expires_date = create_refresh_token(
         data={"email": user_data["email"], "user_id": user_data["user_id"]}, expires_delta=refresh_token_expires
     )
 
-    return {"access_token": access_token, "refresh_token": refresh_token, "refresh_token_expires": refresh_token_expires}
+    return {"access_token": access_token, "refresh_token": refresh_token, "refresh_token_expi": refresh_token_expires_date}
 
 @auth_route.post("/login")
 async def login_user(login_request: UserLoginRequest):
@@ -79,14 +79,14 @@ async def login_user(login_request: UserLoginRequest):
         access_token = create_access_token(
             data={"email": login_email, "user_id": user_in_db["user_id"]}, expires_delta=access_token_expires
         )
-
+        access_expire = datetime.now(timezone.utc) + access_token_expires
         # Create refresh token
         refresh_token_expires = timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
-        refresh_token = create_refresh_token(
+        refresh_token, refresh_token_expires_datetime = create_refresh_token(
             data={"email": login_email, "user_id": user_in_db["user_id"]}, expires_delta=refresh_token_expires
         )
 
-        return {"access_token": access_token, "refresh_token": refresh_token, "refresh_token_expires": refresh_token_expires}
+        return {"access_token": access_token, "refresh_token": refresh_token, "refresh_token_exs": refresh_token_expires_datetime}
     else:
         raise HTTPException(status_code=401, detail="Incorrect email or password")
 
