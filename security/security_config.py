@@ -1,5 +1,5 @@
 from datetime import timedelta, datetime, timezone
-from typing import Union
+from typing import Union, Optional
 
 import jwt
 from fastapi import Depends, HTTPException
@@ -31,6 +31,7 @@ def verify_password(plain_password, hashed_password):
 ### TOKENS
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
+REFRESH_TOKEN_EXPIRE_DAYS = 2
 
 class Token(BaseModel):
     access_token: str
@@ -54,6 +55,16 @@ def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
+
+def create_refresh_token(*, data: dict, expires_delta: Optional[timedelta] = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
 
 def get_current_user(token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(

@@ -1,13 +1,14 @@
 from datetime import timedelta
 
-from fastapi import APIRouter, HTTPException
+import jwt
+from fastapi import APIRouter, HTTPException, Depends
 
 from models.auth import UserLoginRequest, UserRegisterRequest
 from models.users import User
 from database.database import collection_auth, collection_users
 from routes.user_route import get_next_sequence_value
 from security.security_config import get_password_hash, verify_password, ACCESS_TOKEN_EXPIRE_MINUTES, \
-    create_access_token
+    create_access_token, REFRESH_TOKEN_EXPIRE_DAYS, create_refresh_token, oauth2_scheme, SECRET_KEY, ALGORITHM
 ####
 # logging
 from icecream import ic
@@ -48,11 +49,19 @@ async def register_user(user_register_request: UserRegisterRequest):
     }
     collection_auth.insert_one(user_auth)
     ic("auth collection posted")  #### log
+    # Create access token
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"email": user_data["email"], "user_id": user_data["user_id"]}, expires_delta=access_token_expires
     )
-    return {"access_token": access_token, "refresh_token": "skamieliny"}
+
+    # Create refresh token
+    refresh_token_expires = timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+    refresh_token = create_refresh_token(
+        data={"email": user_data["email"], "user_id": user_data["user_id"]}, expires_delta=refresh_token_expires
+    )
+
+    return {"access_token": access_token, "refresh_token": refresh_token, "refresh_token_expires": refresh_token_expires}
 
 @auth_route.post("/login")
 async def login_user(login_request: UserLoginRequest):
@@ -70,7 +79,34 @@ async def login_user(login_request: UserLoginRequest):
         access_token = create_access_token(
             data={"email": login_email, "user_id": user_in_db["user_id"]}, expires_delta=access_token_expires
         )
-        return {"access_token": access_token, "refresh_token": "skamieliny"}
+
+        # Create refresh token
+        refresh_token_expires = timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+        refresh_token = create_refresh_token(
+            data={"email": login_email, "user_id": user_in_db["user_id"]}, expires_delta=refresh_token_expires
+        )
+
+        return {"access_token": access_token, "refresh_token": refresh_token, "refresh_token_expires": refresh_token_expires}
     else:
         raise HTTPException(status_code=401, detail="Incorrect email or password")
 
+@auth_route.post("/refresh")
+async def refresh_token(refresh_token: str = Depends(oauth2_scheme)):
+    credentials_exception = HTTPException(
+        status_code=401,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("email")
+        user_id: str = payload.get("user_id")
+        if email is None or user_id is None:
+            raise credentials_exception
+    except Exception:
+        raise credentials_exception
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"email": email, "user_id": user_id}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
