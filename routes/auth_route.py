@@ -21,6 +21,7 @@ auth_route = APIRouter(
 # POST
 @auth_route.post("/register")
 async def register_user(user_register_request: UserRegisterRequest):
+    # TODO incorrect type handling for user register request
     register_request = dict(user_register_request)
     register_request["password"] = get_password_hash(register_request["password"])
     user_id = get_next_sequence_value("user_id")
@@ -35,11 +36,29 @@ async def register_user(user_register_request: UserRegisterRequest):
     # check for existing user wieth same ID
     existing_user = collection_users.find_one({"user_id": user_data["user_id"]})
     if existing_user is not None:
-        raise HTTPException(status_code=409, detail=f"User with ID {user_data['user_id']}already exists")
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "type": "about:blank",
+                "title": "Conflict",
+                "status": 409,
+                "detail": f"User with ID {user_data['user_id']}already exists",
+                "instance": "/auth/register"
+            }
+        )
     # check for existing user with same email
     existing_user_email = collection_users.find_one({"email": user_data["email"]})
     if existing_user_email is not None:
-        raise HTTPException(status_code=409, detail=f"User with email {user_data['email']} already exists")
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "type": "about:blank",
+                "title": "Conflict",
+                "status": 409,
+                "detail": f"User with email {user_data['email']} already exists",
+                "instance": "/auth/register"
+            }
+        )
     collection_users.insert_one(user_data)
     ic("user collection posted")  #### log
     user_auth = {
@@ -72,7 +91,16 @@ async def login_user(login_request: UserLoginRequest):
     # first check for existing user
     user_in_db = collection_auth.find_one({"email": login_email})
     if user_in_db is None:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "type": "about:blank",
+                "title": "Not found",
+                "status": 404,
+                "detail": f"User with email {login_email} not found ",
+                "instance": "/auth/login"
+            }
+        )
     password_in_db = user_in_db["password"]
     if verify_password(login_password, password_in_db):
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -88,7 +116,16 @@ async def login_user(login_request: UserLoginRequest):
 
         return {"access_token": access_token, "refresh_token": refresh_token, "refresh_token_exs": refresh_token_expires_datetime}
     else:
-        raise HTTPException(status_code=401, detail="Incorrect email or password")
+        raise HTTPException(
+            status_code=401,
+            detail={
+                "type": "about:blank",
+                "title": "Unauthorized",
+                "status": 401,
+                "detail": "Password incorrect",
+                "instance": "/auth/login"
+            }
+        )
 
 @auth_route.post("/refresh")
 async def refresh_token(refresh_token: str = Depends(oauth2_scheme)):
@@ -102,7 +139,7 @@ async def refresh_token(refresh_token: str = Depends(oauth2_scheme)):
         email: str = payload.get("email")
         user_id: str = payload.get("user_id")
         if email is None or user_id is None:
-            raise credentials_exception
+            raise credentials_exception # TODO handle credentials exceptions better
     except Exception:
         raise credentials_exception
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
