@@ -5,7 +5,8 @@ license: BSD 3.0
 description: fastAPI routing for evaluations
 """
 from fastapi import APIRouter, Depends
-from models.evaluations import PostStroopRequest, PostTrailMakingRequest, PostDigitSubstitutionRequest
+from models.evaluations import PostStroopRequest, PostTrailMakingRequest, PostDigitSubstitutionRequest, \
+    GetAllEvaluationsResponse
 from models.users import User
 from database.database import collection_evaluations, collection_users, collection_counters, check_for_collection_counters_null
 from schema.schemas import evaluation_serial_list, user_serial_list
@@ -119,7 +120,7 @@ async def post_digit_substitution(digit_substitution_request: PostDigitSubstitut
     )
     return {"message": f"Trail Making test posted successfully with id: {digit_substitution_id}"}
 
-@evaluations_router.get("/all")
+@evaluations_router.get("/all", response_model=GetAllEvaluationsResponse)
 async def get_all_evaluations(current_user: TokenData = Depends(get_current_user)):
     """
     GET operation on ALL evaluations for selected user to get all in list
@@ -140,10 +141,6 @@ async def get_all_evaluations(current_user: TokenData = Depends(get_current_user
     stroop = user.get("stroop", [])
     digit_sub = user.get("digit_substitution", [])
     trail_make = user.get("trail_making", [])
-    result = {
-        "stroop": stroop,
-        "digit_substitution": digit_sub,
-        "trail_making" : trail_make
-    }
-    return result
+
+    return GetAllEvaluationsResponse(stroop=stroop, digit_substitution=digit_sub, trail_making=trail_make)
 

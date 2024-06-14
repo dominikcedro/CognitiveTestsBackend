@@ -79,6 +79,8 @@ async def update_my_user(update_user_request: UpdateUserRequest, current_user: T
 
         return {"message": "User updated successfully"}
 
+
+
 async def validation_exception_handler(request: Request, exc: ValidationError):
     errors = exc.errors()
     formatted_errors = []

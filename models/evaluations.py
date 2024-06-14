@@ -45,8 +45,14 @@ class TrailMaking(BaseModel):
     mistake_count: int
     total_score: int
 
+
 class PostTrailMakingRequest(BaseModel):
     datetime: datetime
     time: int
     mistake_count: int
 
+
+class GetAllEvaluationsResponse(BaseModel):
+    stroop: Optional[list[Stroop]] = None
+    digit_substitution: Optional[list[DigitSubstitution]]=None
+    trail_making: Optional[list[TrailMaking]]=None
