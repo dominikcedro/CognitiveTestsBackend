@@ -19,22 +19,22 @@ class Stroop(BaseModel):
 class PostStroopRequest(BaseModel):
     datetime: datetime
     mistake_count: int
-    total_score: int
+    # total_score: int
 
 
 class DigitSubstitution(BaseModel):
     digit_sub_id: int
     version: int
     datetime: datetime
-    time: int
     mistake_count: int
+    correct_answers: int
     total_score: int
 
 class PostDigitSubstitutionRequest(BaseModel):
     datetime: datetime
-    time: int
     mistake_count: int
-    total_score: int
+    correct_answers: int
+    # total_score: int
 
 
 class TrailMaking(BaseModel):
@@ -49,4 +49,4 @@ class PostTrailMakingRequest(BaseModel):
     datetime: datetime
     time: int
     mistake_count: int
-    total_score: int
+

@@ -14,3 +14,10 @@ class User(BaseModel):
     last_name: str
     version: int
     email: EmailStr
+
+class UpdateUserRequest(BaseModel):
+    first_name: str
+    last_name: str
+    version: int
+    email: EmailStr
+    password: str

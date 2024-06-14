@@ -54,8 +54,8 @@ async def post_stroop(stroop_request: PostStroopRequest, current_user: TokenData
     )
     return {"message": "Stroop test posted successfully"}
 
-@evaluations_router.post("/trailmaking")
-async def post_trailmaking(trail_making_request: PostTrailMakingRequest, current_user: TokenData = Depends(get_current_user)):
+@evaluations_router.post("/trail_making")
+async def post_trail_making(trail_making_request: PostTrailMakingRequest, current_user: TokenData = Depends(get_current_user)):
     """
     POST operation on TRAIL MAKING evaluation for selected user
     """
@@ -86,8 +86,8 @@ async def post_trailmaking(trail_making_request: PostTrailMakingRequest, current
     )
     return {"message": f"Trail Making test posted successfully with id: {trail_making_in_db}"}
 
-@evaluations_router.post("/digitsubstitution")
-async def post_digitsubstitution(digit_substitution_request: PostDigitSubstitutionRequest, current_user: TokenData = Depends(get_current_user)):
+@evaluations_router.post("/digit_substitution")
+async def post_digit_substitution(digit_substitution_request: PostDigitSubstitutionRequest, current_user: TokenData = Depends(get_current_user)):
     """
     POST operation on DIGIT SUBSTITUTION evaluation for selected user
     """
@@ -106,10 +106,11 @@ async def post_digitsubstitution(digit_substitution_request: PostDigitSubstituti
         )
     digit_substitution_id = get_next_sequence_value("digit_substitution_id")
     digit_substitution_in_db = {  # TODO change to model using model from evaluations file
-        "stroop_id": digit_substitution_id,
+        "digit_substitution_id": digit_substitution_id,
         "version": 1,  # TODO what do i need it for?
         "datetime": digit_substitution_request.datetime,
         "mistake_count": digit_substitution_request.mistake_count,
+        "correct_answers": digit_substitution_request.correct_answers,
         "total_score": digit_substitution_request.total_score
     }
     collection_users.update_one(
@@ -118,7 +119,7 @@ async def post_digitsubstitution(digit_substitution_request: PostDigitSubstituti
     )
     return {"message": f"Trail Making test posted successfully with id: {digit_substitution_id}"}
 
-@evaluations_router.get("/evaluations/all")
+@evaluations_router.get("/all")
 async def get_all_evaluations(current_user: TokenData = Depends(get_current_user)):
     """
     GET operation on ALL evaluations for selected user to get all in list
@@ -133,7 +134,7 @@ async def get_all_evaluations(current_user: TokenData = Depends(get_current_user
                 "title": "Not Found",
                 "status": 404,
                 "detail": f"User with ID {user_id} doesn't exist",
-                "instance": "/evaluation/stroop"
+                "instance": "/evaluation/all"
             }
         )
     stroop = user.get("stroop", [])
