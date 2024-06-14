@@ -129,6 +129,7 @@ async def login_user(login_request: UserLoginRequest):
 
 @auth_route.post("/refresh")
 async def refresh_token(refresh_token: str = Depends(oauth2_scheme)):
+    # TODO ignorowec header a w body wysylac token w body
     credentials_exception = HTTPException(
         status_code=401,
         detail="Could not validate credentials",
