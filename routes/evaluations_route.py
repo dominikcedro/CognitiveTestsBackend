@@ -110,9 +110,9 @@ async def post_digit_substitution(digit_substitution_request: PostDigitSubstitut
             }
         )
     digit_sub_id = get_next_sequence_value("digit_substitution_id")
-    digit_substitution_in_db = {  # TODO change to model using model from evaluations file
+    digit_substitution_in_db = {
         "digit_sub_id": digit_sub_id,
-        "version": 1,  # TODO what do i need it for?
+        "version": 1,
         "datetime": digit_substitution_request.datetime,
         "mistake_count": digit_substitution_request.mistake_count,
         "correct_answers": digit_substitution_request.correct_answers,
