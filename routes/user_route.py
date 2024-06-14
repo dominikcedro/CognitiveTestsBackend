@@ -30,22 +30,21 @@ async def get_users():
     users = user_serial_list(collection_users.find())
     return users
 
-# @user_router.get("/users/{user_id}")
-# async def get_users(user_id:int):
-#     result = collection_users.find_one({"user_id": user_id})
-#     if result is None:
-#         raise HTTPException(status_code=404, detail=f"user not found")
-#     else:
-#         result = user_serial_single(result)
-#     return result
-
-
 @user_router.get("/users/me")
 async def get_my_user(current_user: TokenData = Depends(get_current_user)):
     user_id = current_user.user_id
     result = collection_users.find_one({"user_id": user_id})
     if result is None:
-        raise HTTPException(status_code=404, detail=f"user not found")
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "type": "about:blank",
+                "title": "Not Found",
+                "status": 404,
+                "detail": "User not found",
+                "instance": "/auth/login"
+            }
+        )
     else:
         result = user_serial_single(result)
     return result
@@ -63,17 +62,6 @@ async def validation_exception_handler(request: Request, exc: ValidationError):
         content={"message": formatted_errors}
     )
 
-
-# DELETE
-# @user_router.delete("/users/{user_id}") ## TODO must be synched with delete of auth document also!
-# async def delete_user(user_id: int):
-#     result = collection_users.delete_one({"user_id": user_id})
-#     if result.deleted_count == 0:
-#         raise HTTPException(status_code=404, detail="user not found (delete)")
-#     return {"message": "User deleted successfully"}
-
-
-
 def get_next_sequence_value(sequence_name):
     """
    util function to provide auto incremented IDs for users and evaluations
@@ -82,7 +70,6 @@ def get_next_sequence_value(sequence_name):
 
     if result is None:
         collection_counters.insert_one({"_id": sequence_name, "seq": 0})
-        result = collection_counters.find_one({"_id": sequence_name})
 
     result = collection_counters.find_one_and_update(
         {"_id": sequence_name},
