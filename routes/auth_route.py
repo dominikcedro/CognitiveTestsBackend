@@ -3,7 +3,7 @@ from datetime import timedelta, datetime, timezone
 import jwt
 from fastapi import APIRouter, HTTPException, Depends
 
-from models.auth import UserLoginRequest, UserRegisterRequest
+from models.auth import UserLoginRequest, UserRegisterRequest, RefreshTokenRequest
 from models.users import User
 from database.database import collection_auth, collection_users
 from routes.user_route import get_next_sequence_value
@@ -128,7 +128,7 @@ async def login_user(login_request: UserLoginRequest):
         )
 
 @auth_route.post("/refresh")
-async def refresh_token(refresh_token: str = Depends(oauth2_scheme)):
+async def refresh_token(refresh_token_request: RefreshTokenRequest):
     # TODO ignorowec header a w body wysylac token w body
     credentials_exception = HTTPException(
         status_code=401,
@@ -136,7 +136,7 @@ async def refresh_token(refresh_token: str = Depends(oauth2_scheme)):
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(refresh_token_request.refresh_token, SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get("email")
         user_id: str = payload.get("user_id")
         if email is None or user_id is None:

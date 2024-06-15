@@ -18,3 +18,6 @@ class UserRegisterRequest(BaseModel):
     version: int
     email: EmailStr
     password: str
+
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str
