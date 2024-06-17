@@ -39,13 +39,7 @@ async def get_my_user(current_user: TokenData = Depends(get_current_user)):
     if result is None:
         raise HTTPException(
             status_code=404,
-            detail={
-                "type": "about:blank",
-                "title": "Not Found",
-                "status": 404,
-                "detail": "User not found",
-                "instance": "/auth/login"
-            }
+            detail="User not found"
         )
     else:
         result = user_serial_single(result)
@@ -58,13 +52,7 @@ async def update_my_user(update_user_request: UpdateUserRequest, current_user: T
     if user_in_db is None:
         raise HTTPException(
             status_code=404,
-            detail={
-                "type": "about:blank",
-                "title": "Not Found",
-                "status": 404,
-                "detail": "User not found",
-                "instance": "/user/user"
-            }
+            detail="User not found"
         )
     else:
         update_data = update_user_request.dict(exclude_unset=True)

@@ -33,13 +33,7 @@ async def post_stroop(stroop_request: PostStroopRequest, current_user: TokenData
     if user is None:
         raise HTTPException(
             status_code=404,
-            detail={
-                "type": "about:blank",
-                "title": "Not Found",
-                "status": 404,
-                "detail": f"User with ID {user_id} doesn't exist",
-                "instance": "/evaluation/stroop"
-            }
+            detail=f"User with ID {user_id} doesn't exist"
         )
     stroop_id = get_next_sequence_value("stroop_id")
     stroop_in_db = {
@@ -65,26 +59,13 @@ async def post_trail_making(trail_making_request: PostTrailMakingRequest, curren
     if user is None:
         raise HTTPException(
             status_code=404,
-            detail={
-                "type": "about:blank",
-                "title": "Not Found",
-                "status": 404,
-                "detail": f"User with ID {user_id} doesn't exist",
-                "instance": "/evaluation/stroop"
-            }
+            detail=f"User with ID {user_id} doesn't exist"
         )
     trail_making_id = get_next_sequence_value("trail_making_id")
     trail_making_in_db = TrailMaking(trail_making_id=trail_making_id,version=1, datetime=trail_making_request.datetime,
                                      time=trail_making_request.time, mistake_count=trail_making_request.mistake_count,
                                      total_score=1)
 
-    # trail_making_in_db = { # TODO change to model using model from evaluations file
-    #     "trail_making_id": trail_making_id,
-    #     "version": 1,1
-    #     "datetime": trail_making_request.datetime,
-    #     "time": trail_making_request.time,
-    #     "mistake_count": trail_making_request.mistake_count
-    # }
     collection_users.update_one(
         {"user_id": user_id},
         {"$push": {"trail_making": dict(trail_making_in_db)}}
@@ -101,13 +82,7 @@ async def post_digit_substitution(digit_substitution_request: PostDigitSubstitut
     if user is None:
         raise HTTPException(
             status_code=404,
-            detail={
-                "type": "about:blank",
-                "title": "Not Found",
-                "status": 404,
-                "detail": f"User with ID {user_id} doesn't exist",
-                "instance": "/evaluation/stroop"
-            }
+            detail=f"User with ID {user_id} doesn't exist"
         )
     digit_sub_id = get_next_sequence_value("digit_substitution_id")
     digit_substitution_in_db = {
@@ -134,13 +109,7 @@ async def get_all_evaluations(current_user: TokenData = Depends(get_current_user
     if user is None:
         raise HTTPException(
             status_code=404,
-            detail={
-                "type": "about:blank",
-                "title": "Not Found",
-                "status": 404,
-                "detail": f"User with ID {user_id} doesn't exist",
-                "instance": "/evaluation/all"
-            }
+            detail=f"User with ID {user_id} doesn't exist"
         )
     stroop = user.get("stroop", [])
     digit_sub = user.get("digit_substitution", [])

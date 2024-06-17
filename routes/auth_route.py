@@ -38,26 +38,14 @@ async def register_user(user_register_request: UserRegisterRequest):
     if existing_user is not None:
         raise HTTPException(
             status_code=409,
-            detail={
-                "type": "about:blank",
-                "title": "Conflict",
-                "status": 409,
-                "detail": f"User with ID {user_data['user_id']}already exists",
-                "instance": "/auth/register"
-            }
+            detail=f"User with ID {user_data['user_id']}already exists"
         )
     # check for existing user with same email
     existing_user_email = collection_users.find_one({"email": user_data["email"]})
     if existing_user_email is not None:
         raise HTTPException(
             status_code=409,
-            detail={
-                "type": "about:blank",
-                "title": "Conflict",
-                "status": 409,
-                "detail": f"User with email {user_data['email']} already exists",
-                "instance": "/auth/register"
-            }
+            detail= f"User with email {user_data['email']} already exists"
         )
     collection_users.insert_one(user_data)
     ic("user collection posted")  #### log
@@ -93,13 +81,7 @@ async def login_user(login_request: UserLoginRequest):
     if user_in_db is None:
         raise HTTPException(
             status_code=404,
-            detail={
-                "type": "about:blank",
-                "title": "Not found",
-                "status": 404,
-                "detail": f"User with email {login_email} not found ",
-                "instance": "/auth/login"
-            }
+            detail=f"User with email {login_email} not found "
         )
     password_in_db = user_in_db["password"]
     if verify_password(login_password, password_in_db):
@@ -118,13 +100,7 @@ async def login_user(login_request: UserLoginRequest):
     else:
         raise HTTPException(
             status_code=401,
-            detail={
-                "type": "about:blank",
-                "title": "Unauthorized",
-                "status": 401,
-                "detail": "Password incorrect",
-                "instance": "/auth/login"
-            }
+            detail= "Password incorrect"
         )
 
 @auth_route.post("/refresh")
