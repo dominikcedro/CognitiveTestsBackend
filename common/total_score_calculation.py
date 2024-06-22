@@ -6,21 +6,23 @@ description: This module contains functions that calculate total score for given
 """
 
 
-def calculate_total_score_stroop(mistake_count:int):
-    # mozna miec maks 20 bledow
-    CEILING_POINTS: int = 100
-    total_score_stroop = 100 - (5 * mistake_count)
-    if total_score_stroop < 0:
-        total_score_stroop = 0
+def calculate_total_score_stroop(mistake_count: int) -> int:
+    max_mistakes = 20
+    normalized_score = max(0, 100 - (mistake_count / max_mistakes) * 100)
+    total_score_stroop = max(1, min(5, int(normalized_score // 20) + 1))
     return total_score_stroop
 
-def calculate_total_score_trail_making(time:int, mistake_count:int):
-    # max moze byc
+def calculate_total_score_trail_making(time: int, mistake_count: int) -> int:
+    max_time = 300
+    max_mistakes = 20
+    time_score = max(0, 100 - (time / max_time) * 100)
+    mistake_score = max(0, 100 - (mistake_count / max_mistakes) * 100)
+    combined_score = (time_score + mistake_score) / 2
+    total_score_trail = max(1, min(5, int(combined_score // 20) + 1))
+    return total_score_trail
 
-    pass
-
-def calculate_total_score_digit_substitution(mistake_count:int, correct_answers: int):
-    result = correct_answers - mistake_count
-    # czas to dwie minuty i tyle ile naklikasz tyle wejdzie
-    # są błędy
-    pass
+def calculate_total_score_digit_substitution(mistake_count: int, correct_answers: int) -> int:
+    result = max(0, correct_answers - mistake_count)
+    normalized_score = min(100, result * 5)  # Assuming 20 correct answers as max for a perfect score
+    total_score_digit = max(1, min(5, int(normalized_score // 20) + 1))
+    return total_score_digit

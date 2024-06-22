@@ -25,7 +25,6 @@ def evaluation_serial_single(evaluation) -> dict:
 def evaluation_serial_list(evaluations)->list:
     return[evaluation_serial_single(evaluation) for evaluation in evaluations]
 
-### users
 def user_serial_single(user) -> dict:
     user_dict = {
         "user_id": int(user["user_id"]),
@@ -34,6 +33,9 @@ def user_serial_single(user) -> dict:
         "version": int(user["version"]),
         "email": str(user["email"]),
     }
+
+    if "user_stats" in user and user["user_stats"]:
+        user_dict["user_stats"] = user["user_stats"]
 
     if "stroop" in user and user["stroop"]:
         user_dict["stroop"] = user["stroop"]
