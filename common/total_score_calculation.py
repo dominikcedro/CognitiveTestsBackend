@@ -9,8 +9,8 @@ import math
 
 
 def calculate_total_score_stroop(mistake_count: int) -> int:
-    base_score = 6
-    total_score_stroop = max(1, min(5, int(base_score - (mistake_count / 30) * 5)))
+    # scale the mistake count to the range [1, 5] with 30 mistakes corresponding to a score of 1
+    total_score_stroop = max(1, min(5, 6 - int((mistake_count / 30) * 5)))
     return total_score_stroop
 
 def calculate_total_score_trail_making(time: int, mistake_count: int) -> int:
@@ -23,6 +23,5 @@ def calculate_total_score_digit_substitution(mistake_count: int, correct_answers
     if total_attempts == 0:
         return 1
     accuracy = correct_answers / total_attempts
-
     total_score_digit = max(1, min(5, int(1 + 4 * accuracy)))
     return total_score_digit
