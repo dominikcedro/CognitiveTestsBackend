@@ -9,7 +9,6 @@ import math
 
 
 def calculate_total_score_stroop(mistake_count: int) -> int:
-    # scale the mistake count to the range [1, 5] with 30 mistakes corresponding to a score of 1
     total_score_stroop = max(1, min(5, 6 - int((mistake_count / 30) * 5)))
     return total_score_stroop
 
