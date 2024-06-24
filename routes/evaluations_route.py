@@ -9,7 +9,8 @@ from datetime import datetime
 from fastapi import APIRouter, Depends
 from icecream import ic
 
-from common.total_score_calculation import calculate_total_score_stroop
+from common.total_score_calculation import calculate_total_score_stroop, calculate_total_score_trail_making, \
+    calculate_total_score_digit_substitution
 from models.evaluations import PostStroopRequest, PostTrailMakingRequest, PostDigitSubstitutionRequest, \
     GetAllEvaluationsResponse
 from models.users import User, TestStats
@@ -77,6 +78,7 @@ async def post_trail_making(trail_making_request: PostTrailMakingRequest, curren
     """
     POST operation on TRAIL MAKING evaluation for selected user
     """
+    total_score_trail_making=calculate_total_score_trail_making(trail_making_request.time, trail_making_request.mistake_count)
     user_id = current_user.user_id
     user = collection_users.find_one({"user_id": user_id})
     if user is None:
@@ -87,7 +89,7 @@ async def post_trail_making(trail_making_request: PostTrailMakingRequest, curren
     trail_making_id = get_next_sequence_value("trail_making_id")
     trail_making_in_db = TrailMaking(trail_making_id=trail_making_id,version=1, datetime=trail_making_request.datetime,
                                      time=trail_making_request.time, mistake_count=trail_making_request.mistake_count,
-                                     total_score=1)
+                                     total_score=total_score_trail_making)
 
     collection_users.update_one(
         {"user_id": user_id},
@@ -116,6 +118,7 @@ async def post_digit_substitution(digit_substitution_request: PostDigitSubstitut
     """
     POST operation on DIGIT SUBSTITUTION evaluation for selected user
     """
+    total_score_digit_sub = calculate_total_score_digit_substitution(digit_substitution_request.mistake_count,digit_substitution_request.correct_answers)
     user_id = current_user.user_id
     user = collection_users.find_one({"user_id": user_id})
     if user is None:
@@ -130,7 +133,7 @@ async def post_digit_substitution(digit_substitution_request: PostDigitSubstitut
         "datetime": digit_substitution_request.datetime,
         "mistake_count": digit_substitution_request.mistake_count,
         "correct_answers": digit_substitution_request.correct_answers,
-        "total_score": 1
+        "total_score": total_score_digit_sub
     }
     collection_users.update_one(
         {"user_id": user_id},
