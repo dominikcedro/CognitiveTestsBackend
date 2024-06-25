@@ -95,7 +95,7 @@ async def post_trail_making(trail_making_request: PostTrailMakingRequest, curren
         {"user_id": user_id},
         {"$push": {"trail_making": dict(trail_making_in_db)}}
     )
-    trail_making_stats_data = user.get("user_stats", {}).get("digit_substitution")
+    trail_making_stats_data = user.get("user_stats", {}).get("trail_making")
     if trail_making_stats_data is not None:
         trail_making_stats = TestStats(**trail_making_stats_data)
     else:
@@ -105,8 +105,8 @@ async def post_trail_making(trail_making_request: PostTrailMakingRequest, curren
     trail_making_stats.mean_mistake_count = ((trail_making_stats.mean_mistake_count or 0) * (
                 trail_making_stats.test_count - 1) + trail_making_request.mistake_count) / trail_making_stats.test_count
     trail_making_stats.mean_total_score = ((trail_making_stats.mean_total_score or 0) * (
-                trail_making_stats.test_count - 1) + 1) / trail_making_stats.test_count
-    trail_making_stats.top_score = max(trail_making_stats.top_score or 0, 1)
+            trail_making_stats.test_count - 1) + total_score_trail_making) / trail_making_stats.test_count
+    trail_making_stats.top_score = max(trail_making_stats.top_score or 0, total_score_trail_making)
 
     # Update the user's document in the database
     collection_users.update_one({"user_id": user_id}, {"$set": {"user_stats.trail_making": trail_making_stats.dict()}})
@@ -144,13 +144,14 @@ async def post_digit_substitution(digit_substitution_request: PostDigitSubstitut
         digit_substitution_stats = TestStats(**digit_substitution_stats_data)
     else:
         digit_substitution_stats = TestStats()
+
     digit_substitution_stats.test_count = (digit_substitution_stats.test_count or 0) + 1
     digit_substitution_stats.last_test_date = datetime.now()
     digit_substitution_stats.mean_mistake_count = ((digit_substitution_stats.mean_mistake_count or 0) * (
-                digit_substitution_stats.test_count - 1) + digit_substitution_request.mistake_count) / digit_substitution_stats.test_count
+            digit_substitution_stats.test_count - 1) + digit_substitution_request.mistake_count) / digit_substitution_stats.test_count
     digit_substitution_stats.mean_total_score = ((digit_substitution_stats.mean_total_score or 0) * (
-                digit_substitution_stats.test_count - 1) + 1) / digit_substitution_stats.test_count
-    digit_substitution_stats.top_score = max(digit_substitution_stats.top_score or 0, 1)
+            digit_substitution_stats.test_count - 1) + total_score_digit_sub) / digit_substitution_stats.test_count
+    digit_substitution_stats.top_score = max(digit_substitution_stats.top_score or 0, total_score_digit_sub)
 
     # Update the user's document in the database
     collection_users.update_one({"user_id": user_id}, {"$set": {"user_stats.digit_substitution": digit_substitution_stats.dict()}})
